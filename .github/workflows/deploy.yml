@@ -2,7 +2,7 @@ name: Deploy
 
 on:
   push:
-    branches: [main]
+    branches: [main, claude/game-off-toolchain-baseline-08cj3v] # TEMP: CI-gate proof, reverted next commit
 
 permissions:
   contents: read
