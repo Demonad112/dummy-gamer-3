@@ -11,11 +11,14 @@ _Updated 2026-10-31 · fixed timestep + replays_
   - `ReplayFile` v1 (`replay.ts`): seed, ticks, hash and a run-length-encoded log. F8 downloads one in Play and Game Over, and `?seed=<n>` pins the seed.
   - `src/game/`: Boot/Preload/Menu/Play/GameOver. Play shows one block and a HUD. Space/Click sends `act` (blip + pulse), Esc ends the run.
     Camera bloom + vignette (`fx.ts`), lazy ZzFX (`audio.ts`).
-- Tests (14 Vitest, 3 e2e):
+- Pause/mute/settings (DECISIONS #16): `P` pauses Play (auto-pause on blur/hidden, resume only on `P`), `M` mutes in any scene, shown as MUTED in the HUD.
+  Both are view-only. `src/game/settings.ts` persists `{ muted }` under `dg3.settings`. Canvas exposes `data-paused` (Play) and `data-muted`.
+- Tests (18 Vitest, 5 e2e):
   - Sim: golden hash `3560e748` (unchanged), determinism, JSON round-trip, RNG advance, no mutation.
   - Clock: tick accumulation, catch-up cap, negative delta.
   - Replay: RLE round-trip, tamper detection, and every fixture in `tests/replays/` (`baseline-seed42.json`, hash `5bdc82d6`).
-  - e2e: boot, console errors and content-types, a 404 for a missing asset, and an F8 export that re-simulates to its own hash.
+  - Settings: defaults, bad JSON/shapes, round-trip, defaults object not shared.
+  - e2e: pause freezes ticks (F8 works while paused) and resumes; mute survives reload; boot, console errors and content-types, a 404 for a missing asset, and an F8 export that re-simulates to its own hash.
 - The pre-commit hook (typecheck + sim tests) is active after `npm ci`.
 - README has the "starting a game from this template" checklist. DECISIONS #14 records the template decision.
 
