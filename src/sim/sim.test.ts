@@ -3,12 +3,12 @@ import { createState, hashState, replay, step, type CommandLog } from './index';
 
 const SEED = 1337;
 const LOG: CommandLog = [
-  { t: 'move', dx: 1, dy: 0 },
-  { t: 'move', dx: 0, dy: -1 },
+  { t: 'act' },
   { t: 'wait' },
+  { t: 'act' },
 ];
 // Golden hash: update deliberately (and note why in the commit) if sim rules change.
-const EXPECTED_HASH = 'f633ba81';
+const EXPECTED_HASH = '3560e748';
 
 describe('sim replay', () => {
   it('seed + 3 commands produces the expected state hash', () => {
@@ -26,10 +26,17 @@ describe('sim replay', () => {
     expect(JSON.parse(JSON.stringify(s))).toEqual(s);
   });
 
+  it('act draws from the seeded RNG and advances its state', () => {
+    const s = step(createState(SEED), { t: 'act' });
+    expect(s.roll).toBeGreaterThanOrEqual(1);
+    expect(s.roll).toBeLessThanOrEqual(6);
+    expect(s.rng).not.toBe(SEED);
+  });
+
   it('step does not mutate its input', () => {
     const s = createState(SEED);
     const before = hashState(s);
-    step(s, { t: 'move', dx: 1, dy: 1 });
+    step(s, { t: 'act' });
     expect(hashState(s)).toBe(before);
   });
 });

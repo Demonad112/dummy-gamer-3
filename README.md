@@ -1,14 +1,14 @@
 # dummy-gamer-3
 
-Browser game, 960x540, keyboard and mouse.
+Phaser 4 browser game template, 960x540, keyboard and mouse.
 
 ## Controls
 
 | Input | Action |
 | --- | --- |
-| Arrow keys / WASD | Move |
 | Enter / Space / Click | Start, restart |
-| Esc | Back to menu |
+| Space / Click | Act (placeholder command) |
+| Esc | End run |
 
 ## Dev commands
 
@@ -23,3 +23,11 @@ npm run e2e       # Playwright smoke test against preview (build first)
 ```
 
 License: MIT
+
+## Starting a game from this template
+
+1. GitHub: "Use this template", then clone and run `npm ci`.
+2. Set the repo-local git identity, then add the `BUTLER_API_KEY` secret and the `ITCH_USER`/`ITCH_GAME` variables. Set Pages source to GitHub Actions.
+3. Rename the project in `package.json`, `index.html` `<title>`, the Menu title and this README.
+4. Fill in `docs/GDD.md` and reset `docs/HANDOFF.md`.
+5. Replace the `act` command, `SimState` fields and the Play scene with the real game. Update `EXPECTED_HASH` deliberately.
