@@ -1,3 +1,5 @@
+import { getSettings } from './settings';
+
 // ZzFX is imported lazily on the first user gesture, so no AudioContext exists before input.
 type Zzfx = (...params: (number | undefined)[]) => unknown;
 let play: Zzfx | null = null;
@@ -16,5 +18,6 @@ export function unlockAudio(): void {
 const BLIP = [1, 0.05, 880, 0, 0.02, 0.12, 1, 1.6, 0, 0, 440, 0.04, 0, 0, 0, 0, 0, 0.7, 0.02, 0, 0];
 
 export function sfxBlip(): void {
+  if (getSettings().muted) return;
   play?.(...BLIP);
 }

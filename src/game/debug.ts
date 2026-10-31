@@ -25,3 +25,13 @@ function download(file: ReplayFile): void {
 export function markScene(scene: Phaser.Scene): void {
   scene.game.canvas.dataset.scene = scene.scene.key;
 }
+
+// Mirrors view-only state onto the canvas so e2e tests can poll it. Pause and mute never enter the sim.
+export function markPaused(canvas: HTMLCanvasElement, paused: boolean | null): void {
+  if (paused === null) delete canvas.dataset.paused;
+  else canvas.dataset.paused = String(paused);
+}
+
+export function markMuted(canvas: HTMLCanvasElement, muted: boolean): void {
+  canvas.dataset.muted = String(muted);
+}

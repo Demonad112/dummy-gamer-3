@@ -8,6 +8,8 @@ Phaser 4 browser game template, 960x540, keyboard and mouse.
 | --- | --- |
 | Enter / Space / Click | Start, restart |
 | Space / Click | Act (placeholder command) |
+| P | Pause / resume (Play). Also pauses on focus loss; resume with P |
+| M | Mute / unmute (any scene, remembered between sessions) |
 | Esc | End run |
 | F8 | Save the run as a replay file (Play and Game Over) |
 
