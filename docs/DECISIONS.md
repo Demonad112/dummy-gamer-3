@@ -17,3 +17,4 @@ Settled. Don't re-litigate without new information. Add new entries at the botto
 | 11 | 2026-10-30 | Deploy: GitHub Pages plus itch.io (butler `html5` channel) from main after CI passes. | Two public builds, identical artifact. |
 | 12 | 2026-10-30 | Camera filters: bloom via `Phaser.Actions.AddEffectBloom(cam, { useInternal: true })`, vignette via `cam.filters.internal.addVignette()`. WebGL only. | Verified against the 4.2.1 types. Phaser 4 has no `addBloom`. |
 | 13 | 2026-10-30 | Pre-commit hook in `.githooks/`, activated by the npm `prepare` script. | Active in every fresh clone without extra deps. |
+| 14 | 2026-10-31 | This repo is the jam template. The placeholder grid slice is replaced by a minimal skeleton (one `act` command that rolls the seeded RNG, one block, HUD). Each game starts from "Use this template". | Keeps the toolchain, invariants and tests proven while leaving no game rules to delete. |
