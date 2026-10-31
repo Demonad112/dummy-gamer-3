@@ -25,7 +25,7 @@ test('boots without console errors and serves assets with real content-types', a
   await expect(page.locator('canvas')).toBeVisible();
   // Start a run so Play, the camera filters and the lazy audio chunk all execute.
   await page.locator('canvas').click();
-  await page.keyboard.press('ArrowRight');
+  await page.keyboard.press('Space');
   await page.waitForTimeout(500);
 
   expect(badAssets, 'asset responses with wrong content-type (SPA fallback?)').toEqual([]);

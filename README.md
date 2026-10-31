@@ -1,14 +1,14 @@
 # dummy-gamer-3
 
-Browser game, 960x540, keyboard and mouse.
+Phaser 4 browser game template, 960x540, keyboard and mouse.
 
 ## Controls
 
 | Input | Action |
 | --- | --- |
-| Arrow keys / WASD | Move |
 | Enter / Space / Click | Start, restart |
-| Esc | Back to menu |
+| Space / Click | Act (placeholder command) |
+| Esc | End run |
 
 ## Dev commands
 
