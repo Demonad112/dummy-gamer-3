@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import type { Command } from '../sim';
-import { markMuted } from './debug';
-import { getSettings, setMuted } from './settings';
+import { markFx, markMuted } from './debug';
+import { getSettings, setFx, setMuted } from './settings';
 
 // Maps key presses to sim commands. One entry per Command variant the player can issue.
 export class CommandInput {
@@ -28,5 +28,14 @@ export function bindMute(scene: Phaser.Scene): void {
   scene.input.keyboard?.on('keydown-M', () => {
     setMuted(!getSettings().muted);
     markMuted(scene.game.canvas, getSettings().muted);
+  });
+}
+
+// F toggles full/reduced FX in any scene that calls this. Persisted view setting, not a sim command.
+export function bindFx(scene: Phaser.Scene): void {
+  markFx(scene.game.canvas, getSettings().fx);
+  scene.input.keyboard?.on('keydown-F', () => {
+    setFx(getSettings().fx === 'full' ? 'reduced' : 'full');
+    markFx(scene.game.canvas, getSettings().fx);
   });
 }
