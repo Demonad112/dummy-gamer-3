@@ -40,6 +40,7 @@ License: MIT
 
 1. GitHub: "Use this template", then clone and run `npm ci`.
 2. Set the repo-local git identity, then add the `BUTLER_API_KEY` secret and the `ITCH_USER`/`ITCH_GAME` variables. Set Pages source to GitHub Actions.
-3. Rename the project in `package.json`, `index.html` `<title>`, the Menu title and this README.
+3. Rename the project in `package.json`, `index.html` `<title>`, the Menu title, the first line of `CLAUDE.md`, this README and the clone URL in `docs/LOCAL.md`.
+   Also change `SETTINGS_KEY` in `src/game/settings.ts`: Pages games on one account share an origin, so the shared `dg3.settings` key would mix their settings.
 4. Fill in `docs/GDD.md` and reset `docs/HANDOFF.md`.
 5. Replace the `act` command, `SimState` fields and the Play scene with the real game. Update `EXPECTED_HASH` deliberately and delete or re-record `tests/replays/baseline-seed42.json`.
