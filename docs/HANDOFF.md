@@ -1,16 +1,21 @@
 # Handoff
 
-_Updated 2026-10-31 · template conversion_
+_Updated 2026-10-31 · fixed timestep + replays_
 
 ## State
 - Toolchain proven and deployed: Phaser 4.2.1 (exact pin), TypeScript strict, Vite, Vitest, Playwright.
   CI is green, and Deploy on main is green (Pages + itch).
 - Template skeleton replaces the placeholder grid slice:
   - `src/sim/`: `SimState { seed, rng, tick, roll, status }`, `Command = act | wait`. `act` rolls a d6 from the seeded RNG. Pure `step` and `replay`.
+  - Fixed 60 Hz timestep (`clock.ts`): each tick applies the next queued input or `wait`. `TICK_MODE` in `Play.ts` switches to turn-based.
+  - `ReplayFile` v1 (`replay.ts`): seed, ticks, hash and a run-length-encoded log. F8 downloads one in Play and Game Over, and `?seed=<n>` pins the seed.
   - `src/game/`: Boot/Preload/Menu/Play/GameOver. Play shows one block and a HUD. Space/Click sends `act` (blip + pulse), Esc ends the run.
     Camera bloom + vignette (`fx.ts`), lazy ZzFX (`audio.ts`).
-- Tests: replay golden hash `3560e748` (seed 1337, log act/wait/act), determinism, JSON round-trip, RNG advance, no input mutation (5 total).
-  The smoke test drives `act`, checks for zero console errors and correct content-types, and checks that a missing asset returns 404.
+- Tests (14 Vitest, 3 e2e):
+  - Sim: golden hash `3560e748` (unchanged), determinism, JSON round-trip, RNG advance, no mutation.
+  - Clock: tick accumulation, catch-up cap, negative delta.
+  - Replay: RLE round-trip, tamper detection, and every fixture in `tests/replays/` (`baseline-seed42.json`, hash `5bdc82d6`).
+  - e2e: boot, console errors and content-types, a 404 for a missing asset, and an F8 export that re-simulates to its own hash.
 - The pre-commit hook (typecheck + sim tests) is active after `npm ci`.
 - README has the "starting a game from this template" checklist. DECISIONS #14 records the template decision.
 
@@ -23,7 +28,8 @@ _Updated 2026-10-31 · template conversion_
 
 ## Next session's first task
 Nov 1: once the theme is announced, create the game repo from this template (README checklist), then fill in `docs/GDD.md`
-(pitch, core loop, verbs, Must/Should/Could). After that, replace `act` with the first real verb and get the core loop playable by Nov 7.
+(pitch, core loop, verbs, Must/Should/Could). Choose `TICK_MODE` (realtime or turn) to match the design.
+After that, replace `act` with the first real verb and get the core loop playable by Nov 7. Save each playtest bug as an F8 replay in `tests/replays/`.
 
 ## Measurements
 | Metric | Before feature | After feature | Notes |

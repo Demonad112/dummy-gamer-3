@@ -14,6 +14,7 @@ Browser game, 960x540, Phaser 4 + TypeScript strict + Vite. Solo, 30-day jam.
 - `src/sim/` is a pure-TS deterministic sim: one seeded RNG (`rng.ts`), a flat JSON-serializable
   `SimState`, a serializable `Command` log, and a pure `step(state, cmd)`.
   Zero imports from `phaser` and no DOM, `Date.now()` or `Math.random()`.
+- Fixed 60 Hz timestep (`src/sim/clock.ts`). Every tick logs one `Command` (`wait` when idle). Replay fixtures live in `tests/replays/`.
 - `src/game/` is a thin Phaser view: it renders `SimState` and turns input into `Command`s. No game rules here.
 - All FX code lives in `src/game/fx.ts`. Audio is ZzFX through `src/game/audio.ts`, and only after the first user input.
 - Art is primitives in the fixed `PALETTE` (`src/game/palette.ts`). No binary assets.

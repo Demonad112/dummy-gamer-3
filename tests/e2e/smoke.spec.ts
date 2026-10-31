@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { checkReplay, type ReplayFile } from '../../src/sim';
 
 const EXPECTED_TYPE: Record<string, RegExp> = {
   '.js': /javascript/,
@@ -25,6 +26,7 @@ test('boots without console errors and serves assets with real content-types', a
   await expect(page.locator('canvas')).toBeVisible();
   // Start a run so Play, the camera filters and the lazy audio chunk all execute.
   await page.locator('canvas').click();
+  await expect(page.locator('canvas')).toHaveAttribute('data-scene', 'Play');
   await page.keyboard.press('Space');
   await page.waitForTimeout(500);
 
@@ -36,4 +38,34 @@ test('missing asset is a 404, not an index.html fallback', async ({ request }) =
   const res = await request.get('./assets/does-not-exist.js');
   expect(res.status()).toBe(404);
   expect(res.headers()['content-type'] ?? '').not.toContain('text/html');
+});
+
+test('real-time sim ticks, and F8 exports a replay that re-simulates to the same hash', async ({ page }) => {
+  await page.goto('./?seed=4242');
+  const canvas = page.locator('canvas');
+  await canvas.click();
+  // Scene switches land on the next frame; a key pressed earlier would go to Menu.
+  await expect(canvas).toHaveAttribute('data-scene', 'Play');
+  await page.keyboard.press('Space');
+
+  const exportReplay = async (): Promise<ReplayFile> => {
+    const [download] = await Promise.all([page.waitForEvent('download'), page.keyboard.press('F8')]);
+    let text = '';
+    for await (const chunk of await download.createReadStream()) text += String(chunk);
+    return JSON.parse(text) as ReplayFile;
+  };
+
+  // Headless frame rate varies widely, so poll for the condition instead of sleeping a fixed time.
+  let file!: ReplayFile;
+  await expect
+    .poll(async () => {
+      file = await exportReplay();
+      const kinds = new Set(file.runs.map(([cmd]) => cmd.t));
+      return kinds.has('act') && kinds.has('wait');
+    }, { message: 'replay has the input and idle ticks logged as wait', timeout: 20_000 })
+    .toBe(true);
+
+  expect(file.v).toBe(1);
+  expect(file.seed).toBe(4242);
+  expect(checkReplay(file)).toEqual({ ok: true, hash: file.hash, ticks: file.ticks });
 });
