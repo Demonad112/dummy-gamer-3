@@ -25,14 +25,14 @@ _Updated 2026-10-31 · game-feel FX kit_
 - The pre-commit hook (typecheck + sim tests) is active after `npm ci`.
 - README has the "starting a game from this template" checklist. DECISIONS #14 records the template decision.
 
-## Open items (1-5 closed by owner 2026-10-31)
+## Open items (all closed 2026-10-31)
 1. Manual setup: secrets/variables, Pages source, itch HTML project. Done.
 2. Local `/context`, `/usage`, `/doctor` and the subagent model check. Done. Numbers are not recorded here.
 3. Desktop preview pane check and feel playtest. Done.
 4. Live URL check in a private window and on a phone. Done.
 5. Template conversion. Done: the slice is stripped and the repo is now a template.
-6. Housekeeping: delete the merged remote branches (all fully merged into main, PRs #1-#6 closed as merged):
-   `claude/game-off-toolchain-baseline-08cj3v`, `ccr-329605c3-bekthy`, `claude/pause-mute-settings-ymjhh4`.
+6. Template validated 2026-10-31 by generating `Demonad112/petrifying-superstition` from it: the tree is byte-identical to main (70 files, the hook keeps its exec bit),
+   and `npm ci`, typecheck, 20 Vitest, build and 7 e2e all pass there. The check found rename references the checklist missed, so README step 3 now lists them.
 
 ## Next session's first task
 Nov 1: once the theme is announced, create the game repo from this template (README checklist), then fill in `docs/GDD.md`
