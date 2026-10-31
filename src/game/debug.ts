@@ -1,0 +1,22 @@
+import Phaser from 'phaser';
+import type { ReplayFile } from '../sim';
+
+// `?seed=123` pins the run seed so an exported replay can be reproduced in the browser.
+export function seedFromUrl(fallback: number): number {
+  const p = new URLSearchParams(location.search).get('seed');
+  return p !== null && /^\d+$/.test(p) ? Number(p) >>> 0 : fallback >>> 0;
+}
+
+// F8 downloads the current run. Drop the file in tests/replays/ to make it a regression test.
+export function bindReplayExport(scene: Phaser.Scene, get: () => ReplayFile): void {
+  scene.input.keyboard?.on('keydown-F8', () => download(get()));
+}
+
+function download(file: ReplayFile): void {
+  const url = URL.createObjectURL(new Blob([JSON.stringify(file)], { type: 'application/json' }));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `replay-${file.seed}-${file.ticks}.json`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 0);
+}
