@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import type { ReplayFile } from '../../sim';
-import { bindReplayExport } from '../debug';
+import { bindReplayExport, markScene } from '../debug';
 import { PALETTE } from '../palette';
 
 export class GameOver extends Phaser.Scene {
@@ -9,6 +9,7 @@ export class GameOver extends Phaser.Scene {
   }
 
   create(data: { replay: ReplayFile }): void {
+    markScene(this);
     const { width, height } = this.scale;
     const { ticks, hash, seed } = data.replay;
     this.add.text(width / 2, height / 2 - 40, 'GAME OVER', { fontFamily: 'monospace', fontSize: '48px', color: PALETTE.text }).setOrigin(0.5);

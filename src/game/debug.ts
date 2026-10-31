@@ -20,3 +20,8 @@ function download(file: ReplayFile): void {
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 0);
 }
+
+// Mirrors the active scene onto the canvas (`data-scene`) so e2e tests can wait for it instead of sleeping.
+export function markScene(scene: Phaser.Scene): void {
+  scene.game.canvas.dataset.scene = scene.scene.key;
+}

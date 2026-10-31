@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { advanceClock, createState, encodeReplay, step, type Command, type CommandLog, type SimState } from '../../sim';
 import { sfxBlip } from '../audio';
-import { bindReplayExport } from '../debug';
+import { bindReplayExport, markScene } from '../debug';
 import { applyCameraFx, pulse } from '../fx';
 import { CommandInput } from '../input';
 import { PALETTE } from '../palette';
@@ -22,6 +22,7 @@ export class Play extends Phaser.Scene {
   }
 
   create(data: { seed: number }): void {
+    markScene(this);
     this.sim = createState(data.seed);
     this.log = [];
     this.accMs = 0;
