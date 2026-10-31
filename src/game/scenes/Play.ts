@@ -2,8 +2,8 @@ import Phaser from 'phaser';
 import { advanceClock, createState, encodeReplay, step, type Command, type CommandLog, type SimState } from '../../sim';
 import { sfxBlip } from '../audio';
 import { bindReplayExport, markPaused, markScene } from '../debug';
-import { applyCameraFx, pulse } from '../fx';
-import { bindMute, CommandInput } from '../input';
+import { applyCameraFx, burst, hitStop, pulse, resetHitStop, shake, tickHitStop } from '../fx';
+import { bindFx, bindMute, CommandInput } from '../input';
 import { PALETTE } from '../palette';
 import { getSettings } from '../settings';
 
@@ -35,7 +35,7 @@ export class Play extends Phaser.Scene {
     this.block = this.add.image(width / 2, height / 2, 'block');
     this.hud = this.add.text(12, 8, '', { fontFamily: 'monospace', fontSize: '18px', color: PALETTE.text });
     this.add
-      .text(width / 2, height - 40, 'Space / Click: act   P: pause   M: mute   Esc: end   F8: save replay', { fontFamily: 'monospace', fontSize: '16px', color: PALETTE.accent })
+      .text(width / 2, height - 40, 'Space / Click: act   P: pause   M: mute   F: fx   Esc: end   F8: save replay', { fontFamily: 'monospace', fontSize: '16px', color: PALETTE.accent })
       .setOrigin(0.5);
     this.muteHud = this.add
       .text(width - 12, 8, 'MUTED', { fontFamily: 'monospace', fontSize: '18px', color: PALETTE.accent })
@@ -43,6 +43,7 @@ export class Play extends Phaser.Scene {
     this.overlay = this.makePauseOverlay();
     this.input2 = new CommandInput(this);
     bindMute(this);
+    bindFx(this);
     this.input.keyboard?.on('keydown-P', () => this.setPaused(!this.paused));
     // Losing focus or hiding the tab pauses; only P resumes.
     const autoPause = () => this.setPaused(true);
@@ -52,8 +53,10 @@ export class Play extends Phaser.Scene {
       this.game.events.off(Phaser.Core.Events.BLUR, autoPause);
       this.game.events.off(Phaser.Core.Events.HIDDEN, autoPause);
       markPaused(this.game.canvas, null);
+      resetHitStop(this, null);
     });
     markPaused(this.game.canvas, false);
+    resetHitStop(this, false);
     const replay = () => encodeReplay(data.seed, this.log, this.sim);
     bindReplayExport(this, replay);
     this.input.keyboard?.once('keydown-ESC', () => this.scene.start('GameOver', { replay: replay() }));
@@ -68,13 +71,21 @@ export class Play extends Phaser.Scene {
       this.render();
       return;
     }
+    if (tickHitStop(this, delta)) {
+      // Hit-stop: no clock advance and no step for a few wall ms, like pause. Queued input is kept (it is only delayed).
+      this.render();
+      return;
+    }
     if (TICK_MODE === 'turn') {
       const cmd = this.input2.poll();
       if (cmd) this.apply(cmd);
     } else {
       const { steps, accMs } = advanceClock(this.accMs, delta);
       this.accMs = accMs;
-      for (let i = 0; i < steps; i++) this.apply(this.input2.poll() ?? { t: 'wait' });
+      for (let i = 0; i < steps; i++) {
+        this.apply(this.input2.poll() ?? { t: 'wait' });
+        if (tickHitStop(this, 0)) break; // a hit landed: drop this frame's remaining ticks instead of replaying them later
+      }
     }
     this.render();
   }
@@ -102,6 +113,9 @@ export class Play extends Phaser.Scene {
     if (cmd.t === 'act') {
       sfxBlip();
       pulse(this, this.block);
+      burst(this, this.block.x, this.block.y, { count: 8, color: PALETTE.secondary });
+      shake(this, 0.002, 80);
+      hitStop(this, 40);
     }
   }
 

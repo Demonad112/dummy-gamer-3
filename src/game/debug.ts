@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import type { ReplayFile } from '../sim';
+import type { FxMode } from './settings';
 
 // `?seed=123` pins the run seed so an exported replay can be reproduced in the browser.
 export function seedFromUrl(fallback: number): number {
@@ -26,7 +27,7 @@ export function markScene(scene: Phaser.Scene): void {
   scene.game.canvas.dataset.scene = scene.scene.key;
 }
 
-// Mirrors view-only state onto the canvas so e2e tests can poll it. Pause and mute never enter the sim.
+// Mirrors view-only state onto the canvas so e2e tests can poll it. Pause, mute, fx and hit-stop never enter the sim.
 export function markPaused(canvas: HTMLCanvasElement, paused: boolean | null): void {
   if (paused === null) delete canvas.dataset.paused;
   else canvas.dataset.paused = String(paused);
@@ -34,4 +35,13 @@ export function markPaused(canvas: HTMLCanvasElement, paused: boolean | null): v
 
 export function markMuted(canvas: HTMLCanvasElement, muted: boolean): void {
   canvas.dataset.muted = String(muted);
+}
+
+export function markFx(canvas: HTMLCanvasElement, fx: FxMode): void {
+  canvas.dataset.fx = fx;
+}
+
+export function markHitStop(canvas: HTMLCanvasElement, active: boolean | null): void {
+  if (active === null) delete canvas.dataset.hitstop;
+  else canvas.dataset.hitstop = String(active);
 }

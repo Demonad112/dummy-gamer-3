@@ -117,3 +117,57 @@ test('M mutes, and the setting survives a reload', async ({ page }) => {
   await expect(page.locator('canvas')).toHaveAttribute('data-scene', 'Menu');
   await expect(page.locator('canvas')).toHaveAttribute('data-muted', 'true');
 });
+
+test('F toggles reduced FX, and the setting survives a reload', async ({ page }) => {
+  await page.goto('./');
+  const canvas = page.locator('canvas');
+  await expect(canvas).toHaveAttribute('data-scene', 'Menu');
+  await expect(canvas).toHaveAttribute('data-fx', 'full');
+  await page.keyboard.press('f');
+  await expect(canvas).toHaveAttribute('data-fx', 'reduced');
+
+  await page.reload();
+  await expect(page.locator('canvas')).toHaveAttribute('data-scene', 'Menu');
+  await expect(page.locator('canvas')).toHaveAttribute('data-fx', 'reduced');
+
+  await page.keyboard.press('f');
+  await expect(page.locator('canvas')).toHaveAttribute('data-fx', 'full');
+});
+
+test('act triggers hit-stop (data-hitstop true, then clears) without touching the replay', async ({ page }) => {
+  test.setTimeout(60_000);
+  await page.goto('./?seed=99');
+  const canvas = page.locator('canvas');
+  await canvas.click();
+  await expect(canvas).toHaveAttribute('data-scene', 'Play');
+  await expect(canvas).toHaveAttribute('data-hitstop', 'false');
+
+  // A 40 ms hit-stop can be shorter than one slow headless frame, so record every attribute change
+  // instead of sampling: the observer sees the 'true' even if the page never renders it to a poll.
+  await canvas.evaluate((el) => {
+    const w = window as unknown as { __hitstop: string[] };
+    w.__hitstop = [];
+    new MutationObserver(() => w.__hitstop.push(el.dataset.hitstop ?? 'none')).observe(el, {
+      attributes: true,
+      attributeFilter: ['data-hitstop'],
+    });
+  });
+  await page.keyboard.press('Space');
+
+  await expect
+    .poll(() => page.evaluate(() => (window as unknown as { __hitstop: string[] }).__hitstop.join(',')), {
+      message: 'data-hitstop goes true, then clears back to false',
+      timeout: 20_000,
+    })
+    .toMatch(/^true,false/);
+  await expect(canvas).toHaveAttribute('data-hitstop', 'false');
+
+  // Hit-stop is view-only: the exported replay still re-simulates to its own hash and carries no hit-stop data.
+  const [download] = await Promise.all([page.waitForEvent('download'), page.keyboard.press('F8')]);
+  let text = '';
+  for await (const chunk of await download.createReadStream()) text += String(chunk);
+  const file = JSON.parse(text) as ReplayFile;
+  expect(Object.keys(file).sort()).toEqual(['hash', 'runs', 'seed', 'ticks', 'v']);
+  expect(file.runs.some(([cmd]) => cmd.t === 'act')).toBe(true);
+  expect(checkReplay(file)).toEqual({ ok: true, hash: file.hash, ticks: file.ticks });
+});
